@@ -1,0 +1,182 @@
+version: "1"
+name: "apex-targeted-kis"
+description: "Hand-verified Knowledge Indicators for the Veltrano group, the decoys and the key contract clauses. Every ES|QL is verified before writing."
+enabled: true
+tags:
+  - targeted-ki
+triggers:
+  - type: manual
+steps:
+  - name: create_ki_1
+    type: context-engine.createKi
+    with:
+      ai_index_id: "apex-supplier-intelligence"
+      ki_id: "group/veltrano-holding"
+      verifiers:
+        - esql-valid-syntax
+        - esql-valid-runtime
+      ki:
+        type: "entity"
+        title: "Veltrano Holding S.A. — corporate group and ApexPharm exposure"
+        description: "Hidden ownership group: Veltrano Holding S.A. owns Orvia Life Sciences B.V. and Kestrel Cold Chain; Rheinchem, Lumen and Kestrel are Apex suppliers in the same group; 32.5% of ApexPharm critical supplier spend, above the 30% TPRM v2.0 threshold. Keywords: ApexPharm suppliers, corporate group, ownership, concentration risk, compliance risk."
+        content: "# Veltrano Holding S.A. (Luxembourg) — corporate group\n\n## Ownership (parent company is NOT disclosed in apex_suppliers master data; it only appears in corporate news)\n- Veltrano Holding S.A. owns 100% of Orvia Life Sciences B.V. (since 2024-11-12) — NEWS-2024-1112-001 (EN press release).\n- Orvia Life Sciences B.V. acquired Rheinchem Pharma Services GmbH (2025-03-18) — NEWS-2025-0318-004 (DE press release).\n- Orvia Life Sciences B.V. is the owner of Lumen Analytics Lab Kft. — NEWS-2025-0506-002 (EN registry extract, 2025-05-06).\n- Veltrano Holding S.A. acquired Kestrel Cold Chain S.r.l. directly (2025-09-22) — NEWS-2025-0922-003 (IT news).\n- Adverse media: the Luxembourg regulator opened a review of Veltrano's ownership disclosures (2026-08-27) — NEWS-2026-0827-001. Under TPRM policy v2.0 this triggers enhanced due diligence by itself.\n\n## Apex suppliers in the group (all ApexPharm, criticality critical, 2025 spend)\n| Supplier | Legal name | Spend EUR | Path to group |\n|---|---|---|---|\n| SUPP-000002 | Rheinchem Pharma Services GmbH | 18.4m | via Orvia Life Sciences |\n| SUPP-000010 | Kestrel Cold Chain S.r.l. | 9.6m | directly |\n| SUPP-000014 | Lumen Analytics Lab Kft. | 4.1m | via Orvia Life Sciences |\n\n## Concentration\nGroup spend EUR 32.1m of EUR 98.8m ApexPharm critical supplier spend = **32.5%**.\nCurrent TPRM policy v2.0 (POL-TPRM-EN-002, effective 2026-02-01): enhanced due diligence above **30%** of a business unit's critical supplier spend, assessed at ultimate-parent level -> **threshold exceeded**.\nSuperseded v1.0 (POL-TPRM-EN-001) applied 40% per legal entity and would wrongly conclude no action is needed. Do not use v1.0.\n\n## Not part of this group\nVeltran Logistik GmbH (SUPP-000017) is family-owned and unrelated to Veltrano Holding (look-alike name).\n\n## Remedies (see contract KIs): Rheinchem APX-MSA-2024-0117 cl. 14.3; Lumen APX-MSA-2023-0089 cl. 12.6; Kestrel APX-SLA-2023-0042 cl. 9.4 / 15.2.\n\n## Questions this KI answers\n- Which ApexPharm suppliers belong to the same corporate group?\n- Who is the ultimate parent company of Rheinchem, Lumen Analytics and Kestrel?\n- What share of ApexPharm critical supplier spend sits with a single corporate group?\n- Which of our suppliers could expose ApexPharm to compliance risk?\n- Is the concentration threshold of the third-party risk policy exceeded?"
+        tags:
+          - "entity"
+          - "corporate-group"
+          - "ownership"
+          - "tprm"
+          - "apexpharm"
+          - "compliance-risk"
+          - "suppliers"
+        references:
+          - uri: "index://apex_suppliers"
+            relation: derived_from
+          - uri: "index://apex_corporate_news"
+            relation: derived_from
+          - uri: "index://apex_policy_vault"
+            relation: derived_from
+        attributes:
+          esql: "FROM apex_suppliers | WHERE business_unit == \"ApexPharm\" AND criticality == \"critical\" | EVAL in_group = supplier_id IN (\"SUPP-000002\", \"SUPP-000010\", \"SUPP-000014\") | STATS total_eur = SUM(annual_spend_eur_2025), group_eur = SUM(CASE(in_group, annual_spend_eur_2025, 0)) | EVAL group_share_pct = ROUND(100.0 * group_eur / total_eur, 1) | LIMIT 1"
+  - name: create_ki_2
+    type: context-engine.createKi
+    with:
+      ai_index_id: "apex-supplier-intelligence"
+      ki_id: "group/veltran-logistik-not-related"
+      verifiers:
+        - esql-valid-syntax
+        - esql-valid-runtime
+      ki:
+        type: "entity"
+        title: "Veltran Logistik GmbH — NOT related to Veltrano Holding"
+        description: "Look-alike name: Veltran Logistik GmbH (SUPP-000017) is family-owned (Veltran family since 1987) and is not part of the Veltrano Holding group. Keywords: Veltran vs Veltrano, look-alike supplier, ownership."
+        content: "# Veltran Logistik GmbH (SUPP-000017) — decoy\n\nFamily-owned (Veltran family since 1987); unrelated to Veltrano Holding S.A. Source: NEWS-2026-0311-006 (DE).\nDo NOT include it in the Veltrano group concentration (it is not in the 32.5%). Criticality medium, 2025 spend EUR 3.7m.\n\n## Questions this KI answers\n- Who owns Veltran Logistik?\n- Is Veltran Logistik part of the Veltrano Holding group?"
+        tags:
+          - "entity"
+          - "decoy"
+          - "ownership"
+          - "apexpharm"
+          - "compliance-risk"
+          - "suppliers"
+        references:
+          - uri: "index://apex_suppliers"
+            relation: derived_from
+          - uri: "index://apex_corporate_news"
+            relation: derived_from
+        attributes:
+          esql: "FROM apex_suppliers | WHERE supplier_id == \"SUPP-000017\" | KEEP supplier_id, legal_name, criticality, annual_spend_eur_2025 | LIMIT 1"
+  - name: create_ki_3
+    type: context-engine.createKi
+    with:
+      ai_index_id: "apex-supplier-intelligence"
+      ki_id: "contract/APX-MSA-2024-0117"
+      verifiers:
+        - esql-valid-syntax
+        - esql-valid-runtime
+      ki:
+        type: "document"
+        title: "APX-MSA-2024-0117 — Rheinchem MSA: change-of-control termination"
+        description: "Rheinchem Pharma Services MSA: notify change of control within 30 days (14.1); Apex may terminate on at least 60 days' notice within 12 months of awareness, no fee (14.3)."
+        content: "# APX-MSA-2024-0117 (SUPP-000002 Rheinchem Pharma Services GmbH, Veltrano group)\n- 14.1: supplier must notify a change of control within 30 days.\n- **14.3: Apex may terminate on not less than 60 days' written notice within 12 months of becoming aware, with no termination fee.**\n- 14.4: supplier must cooperate on transfer.\nDo not confuse with APX-MSA-2024-0171 (Halden Biologics), which has no change-of-control clause."
+        tags:
+          - "contract"
+          - "change-of-control"
+          - "rheinchem"
+        references:
+          - uri: "index://apex_contracts"
+            relation: derived_from
+        attributes:
+          esql: "FROM apex_contracts | WHERE contract_id == \"APX-MSA-2024-0117\" | KEEP contract_id, supplier_id, contract_type, has_change_of_control_clause | LIMIT 1"
+  - name: create_ki_4
+    type: context-engine.createKi
+    with:
+      ai_index_id: "apex-supplier-intelligence"
+      ki_id: "contract/APX-MSA-2024-0171"
+      verifiers:
+        - esql-valid-syntax
+        - esql-valid-runtime
+      ki:
+        type: "document"
+        title: "APX-MSA-2024-0171 — Halden MSA: no change-of-control clause (near-duplicate of 0117)"
+        description: "Halden Biologics MSA, independent supplier: no change-of-control clause, only standard termination (material breach, convenience notice per 15.3). Near-duplicate number of APX-MSA-2024-0117."
+        content: "# APX-MSA-2024-0171 (SUPP-000016 Halden Biologics B.V.) — decoy\nNo change-of-control clause. Standard termination only: material breach or convenience notice (clause 15.3).\nHalden is independent (EUR 48m Series C, NEWS-2026-0602-002). Not part of the Veltrano group.\nA different contract, APX-DPA-2024-0171 (Mistral Clearing), shares the same number."
+        tags:
+          - "contract"
+          - "decoy"
+          - "halden"
+        references:
+          - uri: "index://apex_contracts"
+            relation: derived_from
+        attributes:
+          esql: "FROM apex_contracts | WHERE contract_id == \"APX-MSA-2024-0171\" | KEEP contract_id, supplier_id, contract_type, has_change_of_control_clause | LIMIT 1"
+  - name: create_ki_5
+    type: context-engine.createKi
+    with:
+      ai_index_id: "apex-supplier-intelligence"
+      ki_id: "contract/APX-SLA-2023-0042"
+      verifiers:
+        - esql-valid-syntax
+        - esql-valid-runtime
+      ki:
+        type: "document"
+        title: "APX-SLA-2023-0042 — Kestrel SLA: shareholder disclosure duty"
+        description: "Kestrel Cold Chain SLA, remedy for the ownership change: supplier must disclose any shareholder change above 25% within 30 days incl. ultimate parent (9.4); breach of 9.4 is a material breach (15.2, terminable if not cured in 30 days); convenience termination 180 days."
+        content: "# APX-SLA-2023-0042 (SUPP-000010 Kestrel Cold Chain S.r.l., Veltrano group)\n- **9.4: supplier must disclose any change above 25% of its capital within 30 days, including the identity of the ultimate parent.**\n- **15.2: breach of 9.4 is a material breach; Apex may terminate if not remedied within 30 days.**\n- Termination for convenience: 180 days' notice.\nNote: this contract has no classic change-of-control clause (has_change_of_control_clause = false); the protection is the disclosure duty."
+        tags:
+          - "contract"
+          - "disclosure"
+          - "kestrel"
+        references:
+          - uri: "index://apex_contracts"
+            relation: derived_from
+        attributes:
+          esql: "FROM apex_contracts | WHERE contract_id == \"APX-SLA-2023-0042\" | KEEP contract_id, supplier_id, contract_type, has_change_of_control_clause | LIMIT 1"
+  - name: create_ki_6
+    type: context-engine.createKi
+    with:
+      ai_index_id: "apex-supplier-intelligence"
+      ki_id: "contract/APX-MSA-2023-0089"
+      verifiers:
+        - esql-valid-syntax
+        - esql-valid-runtime
+      ki:
+        type: "document"
+        title: "APX-MSA-2023-0089 — Lumen MSA: change of control needs Apex consent"
+        description: "Lumen Analytics Lab MSA: the supplier needs APEX's prior written consent to any change of control (12.6); without Apex's consent Apex may terminate the MSA and any SOW (e.g. APX-SOW-2025-0311) with immediate effect."
+        content: "# APX-MSA-2023-0089 (SUPP-000014 Lumen Analytics Lab Kft., Veltrano group)\n- **12.6: any change of control of the supplier requires Apex's prior written consent; otherwise Apex may terminate the MSA and any Statement of Work (e.g. APX-SOW-2025-0311) with immediate effect by written notice.**\nBeware near-duplicate SOW APX-SOW-2025-0313 (Sorell, unrelated)."
+        tags:
+          - "contract"
+          - "change-of-control"
+          - "lumen"
+        references:
+          - uri: "index://apex_contracts"
+            relation: derived_from
+        attributes:
+          esql: "FROM apex_contracts | WHERE contract_id == \"APX-MSA-2023-0089\" | KEEP contract_id, supplier_id, contract_type, has_change_of_control_clause | LIMIT 1"
+  - name: create_ki_7
+    type: context-engine.createKi
+    with:
+      ai_index_id: "apex-supplier-intelligence"
+      ki_id: "group/veltrano-contract-remedies"
+      verifiers:
+        - esql-valid-syntax
+        - esql-valid-runtime
+      ki:
+        type: "document"
+        title: "Veltrano group — what Apex's contracts allow, per supplier (change of control and disclosure)"
+        description: "Per-supplier contractual options for the Veltrano group: Rheinchem terminate on 60 days' notice (14.3); Lumen needs Apex's consent else immediate termination (12.6); Kestrel disclosure duty 9.4, breach = material breach 15.2 (30-day cure); Apex action under TPRM v2.0 EDD. Keywords: ApexPharm suppliers, compliance risk, contractual options, termination, change of control, disclosure duty."
+        content: "# Veltrano Holding group — contractual options for Apex (ApexPharm)\n\n| Supplier | Contract | Clause | What Apex can do |\n|---|---|---|---|\n| Rheinchem Pharma Services GmbH | APX-MSA-2024-0117 | 14.1, 14.3 | Supplier must notify a change of control within 30 days. **Apex may terminate on at least 60 days' written notice within 12 months of becoming aware, no fee.** |\n| Lumen Analytics Lab Kft. | APX-MSA-2023-0089 (+ SOW APX-SOW-2025-0311) | 12.6 | **The supplier needs APEX's prior written consent to a change of control.** Without Apex's consent, Apex may terminate the MSA and any SOW with immediate effect. |\n| Kestrel Cold Chain S.r.l. | APX-SLA-2023-0042 | 9.4, 15.2 | No classic change-of-control clause. **Supplier must disclose any >25% shareholder change within 30 days, including the ultimate parent (9.4). Breach of 9.4 is a material breach (15.2): Apex may terminate if not cured within 30 days.** Convenience termination: 180 days' notice. |\n\n## Policy action (TPRM v2.0, POL-TPRM-EN-002)\nGroup concentration 32.5% > 30% -> enhanced due diligence within 30 days, escalation to Group Risk and exit / dual-sourcing plan. The regulator review of Veltrano's ownership disclosures (NEWS-2026-0827-001) is an EDD trigger by itself.\n\n## Do not confuse\nAPX-MSA-2024-0171 (Halden Biologics) is a different, independent supplier with no change-of-control clause. Veltran Logistik is unrelated to Veltrano.\n\n## Questions this KI answers\n- What do our contracts let us do about suppliers that could expose ApexPharm to compliance risk?\n- Can we terminate if a supplier changes owner?\n- Which clauses apply to the Veltrano group suppliers (Rheinchem, Lumen, Kestrel)?"
+        tags:
+          - "contract"
+          - "remedies"
+          - "veltrano"
+          - "tprm"
+          - "apexpharm"
+          - "compliance-risk"
+          - "suppliers"
+        references:
+          - uri: "index://apex_contracts"
+            relation: derived_from
+          - uri: "index://apex_policy_vault"
+            relation: derived_from
+        attributes:
+          esql: "FROM apex_contracts | WHERE contract_id IN (\"APX-MSA-2024-0117\", \"APX-MSA-2023-0089\", \"APX-SLA-2023-0042\") | KEEP contract_id, supplier_id, contract_type, has_change_of_control_clause | SORT contract_id | LIMIT 10"

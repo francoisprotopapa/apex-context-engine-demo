@@ -1,0 +1,6 @@
+openai>=1.40
+requests>=2.31
+python-dotenv>=1.0
+rich>=13.7
+# Elastic Distribution of OpenTelemetry (EDOT) Python — after install run: edot-bootstrap --action=install
+elastic-opentelemetry

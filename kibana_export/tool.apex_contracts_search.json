@@ -1,0 +1,9 @@
+{
+ "id": "apex_contracts_search",
+ "type": "index_search",
+ "description": "Search the full text of Apex supplier contracts (MSA, SLA, SOW, NDA, DPA): clauses, termination rights, change of control, disclosure duties. Contracts are long documents identified by IDs like APX-MSA-2024-0117.",
+ "tags": [],
+ "configuration": {
+  "pattern": "apex_contracts"
+ }
+}

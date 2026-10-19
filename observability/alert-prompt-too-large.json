@@ -1,0 +1,35 @@
+{
+ "name": "[LLM] Prompt too large \u2014 over 10,000 tokens in one call",
+ "tags": [
+  "LLM",
+  "apex-demo",
+  "tokens",
+  "Missing Elastic Cloud API Key"
+ ],
+ "rule_type_id": ".es-query",
+ "consumer": "alerts",
+ "schedule": {
+  "interval": "1m"
+ },
+ "params": {
+  "searchType": "esqlQuery",
+  "timeWindowSize": 5,
+  "timeWindowUnit": "m",
+  "threshold": [
+   0
+  ],
+  "thresholdComparator": ">",
+  "size": 100,
+  "esqlQuery": {
+   "esql": "FROM traces-*\n| WHERE service.name == \"apex-rag-demo\" AND attributes.apex.prompt_tokens > 10000\n| KEEP @timestamp, attributes.apex.question_id, attributes.apex.mode, attributes.apex.prompt_tokens, attributes.apex.cost_eur\n| SORT @timestamp DESC\n| LIMIT 10"
+  },
+  "aggType": "count",
+  "groupBy": "all",
+  "termSize": 5,
+  "sourceFields": [],
+  "timeField": "@timestamp",
+  "excludeHitsFromPreviousRun": true
+ },
+ "actions": [],
+ "enabled": true
+}

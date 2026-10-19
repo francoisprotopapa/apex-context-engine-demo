@@ -1,0 +1,9 @@
+{
+ "id": "apex_corporate_news_search",
+ "type": "index_search",
+ "description": "Search Apex corporate news: press releases, news articles and registry extracts in English, German, French and Italian about companies, acquisitions, ownership, regulators and executive changes.",
+ "tags": [],
+ "configuration": {
+  "pattern": "apex_corporate_news"
+ }
+}

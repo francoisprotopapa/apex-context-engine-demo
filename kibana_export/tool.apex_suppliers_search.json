@@ -1,0 +1,9 @@
+{
+ "id": "apex_suppliers_search",
+ "type": "index_search",
+ "description": "Search the Apex supplier master data: legal names, business unit, criticality, 2025 annual spend, risk score and linked contract IDs. The ultimate parent company is NOT disclosed here.",
+ "tags": [],
+ "configuration": {
+  "pattern": "apex_suppliers"
+ }
+}

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RAG is Broken · Elastic + Azure · AI Dev Night Köln</title>
+  <link rel="icon" href="/static/favicon.png">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <div class="notice" id="notice">
+    <span>FOR DEMO PURPOSES ONLY</span>
+    <span>SYNTHETIC COMPANY AND DATA</span>
+    <span class="pill" id="modePill">LIVE</span>
+  </div>
+  <header class="top">
+    <a class="brand" href="#/" aria-label="Home">
+      <img src="/static/elastic-logo.png" alt="Elastic" height="30">
+      <span class="brand-text"><small>AI DEV NIGHT · KÖLN</small><strong>RAG is Broken</strong></span>
+    </a>
+    <nav id="nav">
+      <a href="#/demo" data-r="demo">Try the demo</a>
+      <a href="#/how" data-r="how">How it works</a>
+      <a href="#/status" data-r="status">Service status</a>
+      <a href="#/guides" data-r="guides">Guides</a>
+      <a href="#/admin" data-r="admin" id="navAdmin" hidden>Admin</a>
+    </nav>
+    <div class="mode" role="group" aria-label="Mode">
+      <button id="modeLive" class="seg on">Live</button>
+      <button id="modePractice" class="seg">Practice</button>
+    </div>
+  </header>
+  <main id="app" tabindex="-1"></main>
+  <script src="/static/arch.js"></script>
+  <script src="/static/app.js"></script>
+</body>
+</html>

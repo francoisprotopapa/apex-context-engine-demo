@@ -1,0 +1,15 @@
+{
+ "id": "apex_context_lookup",
+ "type": "esql",
+ "description": "Look up Apex's precomputed knowledge indicators (Context Engine AI index apex-supplier-intelligence): verified ownership groups and corporate-group concentration, spend shares vs the third-party risk policy threshold, and per-contract clauses (change of control, disclosure duties, termination). Pass the user's question as-is in `query`. Use it FIRST for questions about suppliers, ownership, compliance risk, concentration or contract remedies.",
+ "tags": [],
+ "configuration": {
+  "query": "FROM ai-index-idx-apex-supplier-intelligence METADATA _id, _index, _score\n| WHERE governance.lifecycle.status IS NULL OR governance.lifecycle.status == \"active\"\n| FORK ( WHERE MATCH(title, ?query) OR MATCH(description, ?query) OR MATCH(content, ?query) | SORT _score DESC | LIMIT 20 )\n      ( WHERE MATCH(title.semantic, ?query) OR MATCH(description.semantic, ?query) OR MATCH(content.semantic, ?query) | SORT _score DESC | LIMIT 20 )\n| FUSE\n| SORT _score DESC, _id ASC\n| KEEP id, title, description, content\n| LIMIT 5",
+  "params": {
+   "query": {
+    "type": "string",
+    "description": "The user's question, verbatim, in natural language"
+   }
+  }
+ }
+}

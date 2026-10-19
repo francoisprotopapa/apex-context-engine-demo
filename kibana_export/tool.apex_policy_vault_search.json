@@ -1,0 +1,9 @@
+{
+ "id": "apex_policy_vault_search",
+ "type": "index_search",
+ "description": "Search Apex internal policies, including the Third-Party Risk Management (TPRM) policy in several versions: thresholds, due diligence triggers, effective dates.",
+ "tags": [],
+ "configuration": {
+  "pattern": "apex_policy_vault"
+ }
+}

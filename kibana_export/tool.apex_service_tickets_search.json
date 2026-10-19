@@ -1,0 +1,9 @@
+{
+ "id": "apex_service_tickets_search",
+ "type": "index_search",
+ "description": "Search Apex maintenance and quality service tickets: incidents, spare parts and temperature excursions.",
+ "tags": [],
+ "configuration": {
+  "pattern": "apex_service_tickets"
+ }
+}
